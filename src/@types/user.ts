@@ -19,6 +19,7 @@ export interface INewUser {
 }
 
 export interface INewUserFormatted extends INewUser {
+  _id: string;
   fullname: string;
   contacts: IContact[];
   avatar?: string;

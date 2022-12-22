@@ -14,3 +14,4 @@ firebase.initializeApp({
 
 export const mediaStorage = firebase.storage().bucket();
 export const firestore = firebase.firestore();
+export const firestoreAuth = firebase.auth();
