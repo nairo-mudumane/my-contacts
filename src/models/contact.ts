@@ -1,24 +1,26 @@
 import { IContact, INewContact, IUser } from "../@types";
 import { formatContact, isEmpty } from "../resources";
+import { database } from "../services";
 import { UserModel } from "./user";
 
 export class ContactModel {
+  private userRef = "users";
+  private contactRef = "contacts";
+
   public async create(
     userId: string,
     payload: INewContact
   ): Promise<string | undefined> {
-    const userModel = new UserModel();
-
     try {
-      const user = await userModel.getById(userId);
-      if (isEmpty(user)) throw new Error("user not found");
-
-      const contacts = user!.contacts;
       const formatted = formatContact(payload) as IContact;
-      contacts.push(formatted);
+      await database
+        .collection(this.userRef)
+        .doc(userId)
+        .collection(this.contactRef)
+        .doc(formatted._id)
+        .set(formatted);
 
-      await userModel.update(userId, { contacts });
-      return;
+      return formatted._id;
     } catch (error) {
       throw error;
     }
@@ -26,12 +28,19 @@ export class ContactModel {
 
   public async getAll(userId: string): Promise<IContact[]> {
     try {
-      const userModel = new UserModel();
+      const contacts: IContact[] = [];
 
-      const user = await userModel.getById(userId);
-      if (isEmpty(user)) throw new Error("user not found");
+      await database
+        .collection(this.userRef) // "users"
+        .doc(userId)
+        .collection(this.contactRef) // "contacts"
+        .get()
+        .then((snapshot) => {
+          snapshot.docs.forEach((doc) => {
+            contacts.push(doc.data() as IContact);
+          });
+        });
 
-      const { contacts } = user as IUser;
       return contacts;
     } catch (error) {
       throw error;
@@ -50,6 +59,9 @@ export class ContactModel {
       let contact = contacts.find((item) => item._id === contactId);
 
       if (isEmpty(contact)) throw new Error("contact not found");
+
+      contact!.seen += 1;
+      await userModel.update(userId, { contacts: [...contacts, contact] });
 
       return contact!;
     } catch (error) {

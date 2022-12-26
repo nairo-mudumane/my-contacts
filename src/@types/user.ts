@@ -22,5 +22,4 @@ export interface INewUser {
 export interface INewUserFormatted extends INewUser, ITimeStamps {
   _id: string;
   fullname: string;
-  contacts: IContact[];
 }

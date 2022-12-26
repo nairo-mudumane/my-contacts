@@ -19,7 +19,6 @@ export function formatUser({
     createdAt,
     updatedAt,
     lastname,
-    contacts: [],
     fullname: `${firstname} ${lastname}`,
   };
 

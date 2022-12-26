@@ -8,8 +8,13 @@ export function formatContact({
   phone,
 }: INewContact): INewContactFormatted {
   const _id = getUid();
+  const favorite = false;
+  const seen = 0;
+
   const formatted: INewContactFormatted = {
     _id,
+    favorite,
+    seen,
     email,
     phone,
     firstname,

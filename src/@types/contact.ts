@@ -23,4 +23,6 @@ export interface INewContact {
 export interface INewContactFormatted extends INewContact {
   fullname: string;
   _id: string;
+  favorite: boolean;
+  seen: number;
 }

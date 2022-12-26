@@ -8,7 +8,7 @@ export class UserModel {
   public async create(payload: INewUser): Promise<string> {
     try {
       const formatted = formatUser(payload);
-      await database.collection(this.ref).doc(formatted._id).create(formatted);
+      await database.collection(this.ref).doc(formatted._id).set(formatted);
       return formatted._id;
     } catch (error) {
       throw error;
@@ -18,14 +18,8 @@ export class UserModel {
   private async getAll(): Promise<IUser[]> {
     try {
       const users: IUser[] = [];
-      await database
-        .collection(this.ref)
-        .get()
-        .then((query) => {
-          query.forEach((result) => {
-            users.push(result.data() as IUser);
-          });
-        });
+      const snapshot = await database.collection(this.ref).get();
+      snapshot.forEach((doc) => users.push(doc.data() as IUser));
 
       return users;
     } catch (error) {
@@ -58,6 +52,7 @@ export class UserModel {
           const result = snapshot.data();
           return result as IUser | undefined;
         });
+
       return user;
     } catch (error) {
       throw error;
@@ -85,10 +80,6 @@ export class UserModel {
     payload: { [key: string]: any }
   ): Promise<void> {
     try {
-      const user = await this.getById(userId);
-
-      if (isEmpty(user)) throw new Error("user not found");
-
       await database
         .collection(this.ref)
         .doc(userId)
