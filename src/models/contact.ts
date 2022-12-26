@@ -1,5 +1,5 @@
-import { IContact, INewContact, IUser } from "../@types";
-import { formatContact, isEmpty } from "../resources";
+import { IContact, INewContact, INewContactFormatted, IUser } from "../@types";
+import { formatContact, generateTimestamps, isEmpty } from "../resources";
 import { database } from "../services";
 import { UserModel } from "./user";
 
@@ -123,6 +123,21 @@ export class ContactModel {
     } catch (error) {
       throw error;
     }
+  }
+
+  public async update(
+    userId: string,
+    contactId: string,
+    payload: INewContactFormatted
+  ): Promise<void> {
+    const { updatedAt } = generateTimestamps("update");
+
+    await database
+      .collection(this.userRef)
+      .doc(userId)
+      .collection(this.contactRef)
+      .doc(contactId)
+      .update({ ...payload, updatedAt });
   }
 
   constructor() {}
