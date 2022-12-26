@@ -1,8 +1,8 @@
 {
   "name": "my-contacts",
   "version": "0.0.1",
-  "main": "index.js",
-  "repository": "git@github.com:nairo-mudumane/my-contacts.git",
+  "main": "dist/index.js",
+  "repository": "git@github.com:nairo-mudumane/my-contacts-server.git",
   "author": "nairo-mudumane <nairomudumane@outlook.com>",
   "license": "MIT",
   "scripts": {
