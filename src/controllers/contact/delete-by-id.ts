@@ -1,11 +1,9 @@
 import type { Response } from "express";
-import type { IAuthRequest, INewContactFormatted } from "../../@types";
+import type { IAuthRequest } from "../../@types";
 import { ContactModel, UserModel } from "../../models";
-import { removeFile } from "../../resources";
 
-export async function update(request: IAuthRequest, response: Response) {
-  const { user, params, body, file } = request;
-  const payload = body as INewContactFormatted;
+export async function deleteById(request: IAuthRequest, response: Response) {
+  const { user, params } = request;
   const userModel = new UserModel();
   const contactModel = new ContactModel();
 
@@ -17,23 +15,14 @@ export async function update(request: IAuthRequest, response: Response) {
     exists = await contactModel.getById(user!._id, params.id);
     if (!exists)
       return response.status(404).json({ message: "contact not found" });
-    else if (
-      payload.email &&
-      (await contactModel.exists(user!._id, payload.email))
-    )
-      throw new Error("contact already exists");
   } catch (error: Error | any) {
-    if (file) removeFile(file.path);
     return response.status(400).json({ message: error.message });
   }
 
   try {
-    const updated = await contactModel.update(user!._id, params.id, payload);
-    return response
-      .status(200)
-      .json({ message: "updated", count: 1, data: updated });
+    await contactModel.deleteById(user!._id, params.id);
+    return response.status(200).json({ message: "deleted", count: 1 });
   } catch (error: Error | any) {
-    if (file) removeFile(file.path);
     return response.status(500).json({ message: error.message });
   }
 }

@@ -140,5 +140,14 @@ export class ContactModel {
       .update({ ...payload, updatedAt });
   }
 
+  public async deleteById(userId: string, contactId: string): Promise<void> {
+    await database
+      .collection(this.userRef)
+      .doc(userId)
+      .collection(this.contactRef)
+      .doc(contactId)
+      .delete();
+  }
+
   constructor() {}
 }

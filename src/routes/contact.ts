@@ -11,5 +11,6 @@ router.get("/favorites", controller.getFavorites);
 router.get("/:id", controller.getById);
 router.patch("/:id", controller.toggleFavorite);
 router.put("/:id", localUpload.single("avatar"), controller.update);
+router.delete("/:id", controller.deleteById);
 
 export { router as ContactRoutes };
