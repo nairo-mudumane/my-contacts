@@ -25,13 +25,36 @@ export class ContactModel {
   }
 
   public async getAll(userId: string): Promise<IContact[]> {
-    const userModel = new UserModel();
+    try {
+      const userModel = new UserModel();
 
-    const user = await userModel.getById(userId);
-    if (isEmpty(user)) throw new Error("user not found");
+      const user = await userModel.getById(userId);
+      if (isEmpty(user)) throw new Error("user not found");
 
-    const { contacts } = user as IUser;
-    return contacts;
+      const { contacts } = user as IUser;
+      return contacts;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async getById(userId: string, contactId: string): Promise<IContact> {
+    try {
+      const userModel = new UserModel();
+
+      const user = await userModel.getById(userId);
+      if (isEmpty(user)) throw new Error("user not found");
+
+      const { contacts } = user as IUser;
+
+      let contact = contacts.find((item) => item._id === contactId);
+
+      if (isEmpty(contact)) throw new Error("contact not found");
+
+      return contact!;
+    } catch (error) {
+      throw error;
+    }
   }
 
   constructor() {}
