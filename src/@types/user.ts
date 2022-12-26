@@ -6,8 +6,9 @@ export interface IUser extends ITimeStamps {
   lastname: string;
   fullname: string;
   email: string;
-  avatar: string;
   contacts: IContact[];
+  avatar?: string;
+  token?: string;
 }
 
 export interface INewUser {
@@ -15,12 +16,10 @@ export interface INewUser {
   lastname?: string;
   email?: string;
   avatar?: string;
-  token?: string;
 }
 
-export interface INewUserFormatted extends INewUser {
+export interface INewUserFormatted extends INewUser, ITimeStamps {
   _id: string;
   fullname: string;
   contacts: IContact[];
-  avatar?: string;
 }

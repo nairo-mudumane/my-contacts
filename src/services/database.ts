@@ -13,5 +13,6 @@ firebase.initializeApp({
 });
 
 export const mediaStorage = firebase.storage().bucket();
-export const firestore = firebase.firestore();
 export const firestoreAuth = firebase.auth();
+export const database = firebase.firestore();
+database.settings({ ignoreUndefinedProperties: true });
