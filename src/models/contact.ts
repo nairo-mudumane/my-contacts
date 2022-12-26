@@ -1,4 +1,4 @@
-import { IContact, INewContact } from "../@types";
+import { IContact, INewContact, IUser } from "../@types";
 import { formatContact, isEmpty } from "../resources";
 import { UserModel } from "./user";
 
@@ -11,7 +11,6 @@ export class ContactModel {
 
     try {
       const user = await userModel.getById(userId);
-
       if (isEmpty(user)) throw new Error("user not found");
 
       const contacts = user!.contacts;
@@ -24,5 +23,16 @@ export class ContactModel {
       throw error;
     }
   }
+
+  public async getAll(userId: string): Promise<IContact[]> {
+    const userModel = new UserModel();
+
+    const user = await userModel.getById(userId);
+    if (isEmpty(user)) throw new Error("user not found");
+
+    const { contacts } = user as IUser;
+    return contacts;
+  }
+
   constructor() {}
 }
