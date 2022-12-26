@@ -4,6 +4,6 @@ import * as controller from "../controllers/auth";
 const router = Router();
 
 router.post("/new", controller.create);
-router.get("/:id", controller.getProfile);
+router.post("/login", controller.login);
 
 export { router as AuthRoutes };

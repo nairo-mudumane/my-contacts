@@ -9,6 +9,7 @@ export interface IUser extends ITimeStamps {
   contacts: IContact[];
   avatar?: string;
   token?: string;
+  _id: string;
 }
 
 export interface INewUser {

@@ -51,5 +51,17 @@ export class UserModel {
     return user;
   }
 
+  async getByEmail(email: string): Promise<IUser | undefined> {
+    const users = await this.getAll();
+    if (users.length <= 0) return;
+
+    let user: IUser | undefined;
+    users.forEach((_user) => {
+      if (_user.email === email) user = _user;
+    });
+
+    return user;
+  }
+
   constructor() {}
 }
