@@ -1,15 +1,28 @@
 import type { IContact, INewUser, IUser } from "../@types";
-import { formatUser, isEmpty } from "../resources";
+import { formatUser, generateLoginToken, isEmpty } from "../resources";
 import { database } from "../services";
 
 export class UserModel {
   private ref = "users";
 
-  public async create(payload: INewUser): Promise<string> {
+  public async create(payload: INewUser): Promise<IUser> {
     try {
       const formatted = formatUser(payload);
+      const token = generateLoginToken({ _id: formatted._id });
       await database.collection(this.ref).doc(formatted._id).set(formatted);
-      return formatted._id;
+
+      const created: IUser = {
+        token,
+        ...formatted,
+        _id: formatted._id,
+        email: formatted.email!,
+        firstname: formatted.firstname!,
+        lastname: formatted.lastname!,
+        fullname: formatted.fullname,
+        avatar: formatted.avatar!,
+        contacts: [],
+      };
+      return created;
     } catch (error) {
       throw error;
     }

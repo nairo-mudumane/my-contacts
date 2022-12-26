@@ -1,7 +1,7 @@
 import type { JwtPayload, VerifyErrors } from "jsonwebtoken";
 
 export interface IAuthCredentials {
-  email?: string;
+  token?: string;
 }
 
 export type VerifyLoginTokenCallback = (
