@@ -13,6 +13,7 @@ export class ContactModel {
   ): Promise<string | undefined> {
     try {
       const formatted = formatContact(payload) as IContact;
+
       await database
         .collection(this.userRef)
         .doc(userId)
@@ -30,16 +31,13 @@ export class ContactModel {
     try {
       const contacts: IContact[] = [];
 
-      await database
-        .collection(this.userRef) // "users"
+      const snapshot = await database
+        .collection(this.userRef)
         .doc(userId)
-        .collection(this.contactRef) // "contacts"
-        .get()
-        .then((snapshot) => {
-          snapshot.docs.forEach((doc) => {
-            contacts.push(doc.data() as IContact);
-          });
-        });
+        .collection(this.contactRef)
+        .get();
+
+      snapshot.forEach((doc) => contacts.push(doc.data() as IContact));
 
       return contacts;
     } catch (error) {
@@ -47,23 +45,81 @@ export class ContactModel {
     }
   }
 
-  public async getById(userId: string, contactId: string): Promise<IContact> {
+  public async getById(
+    userId: string,
+    contactId: string
+  ): Promise<IContact | undefined> {
     try {
-      const userModel = new UserModel();
+      const contact = (
+        await database
+          .collection(this.userRef)
+          .doc(userId)
+          .collection(this.contactRef)
+          .doc(contactId)
+          .get()
+      ).data() as IContact;
 
-      const user = await userModel.getById(userId);
-      if (isEmpty(user)) throw new Error("user not found");
+      if (contact) {
+        let { seen } = contact;
+        seen += 1;
 
-      const { contacts } = user as IUser;
+        await database
+          .collection(this.userRef)
+          .doc(userId)
+          .collection(this.contactRef)
+          .doc(contactId)
+          .update({ seen });
+      }
 
-      let contact = contacts.find((item) => item._id === contactId);
+      return contact;
+    } catch (error) {
+      throw error;
+    }
+  }
 
-      if (isEmpty(contact)) throw new Error("contact not found");
+  public async exists(userId: string, email: string): Promise<boolean> {
+    try {
+      let exists = false;
+      const contacts = await this.getAll(userId);
 
-      contact!.seen += 1;
-      await userModel.update(userId, { contacts: [...contacts, contact] });
+      contacts.forEach((contact) => {
+        if (contact.email === email) exists = true;
+      });
 
-      return contact!;
+      return exists;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async toggleFavorite(
+    userId: string,
+    contactId: string,
+    favorite: boolean
+  ): Promise<void> {
+    await database
+      .collection(this.userRef)
+      .doc(userId)
+      .collection(this.contactRef)
+      .doc(contactId)
+      .update({ favorite });
+  }
+
+  public async getFavorites(userId: string): Promise<IContact[]> {
+    try {
+      const contacts: IContact[] = [];
+
+      await database
+        .collection(this.userRef)
+        .doc(userId)
+        .collection(this.contactRef)
+        .where("favorite", "==", true)
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) => contacts.push(doc.data() as IContact));
+        });
+
+      return contacts;
     } catch (error) {
       throw error;
     }

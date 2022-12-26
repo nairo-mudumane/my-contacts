@@ -1,5 +1,5 @@
 import type { Response } from "express";
-import type { IAuthRequest, IContact, INewContact, IUser } from "../../@types";
+import type { IAuthRequest, INewContact, IUser } from "../../@types";
 import { ContactModel } from "../../models";
 import { UserModel } from "../../models/user";
 import { checkPayloadFields, isEmpty, removeFile } from "../../resources";
@@ -16,15 +16,13 @@ export async function create(request: IAuthRequest, response: Response) {
     checkPayloadFields(payload, ["firstname", "lastname", "email", "phone"]);
 
     const userModel = new UserModel();
+    const contactModel = new ContactModel();
     user = await userModel.getById(decodedUser!._id);
     if (isEmpty(user))
       return response.status(404).json({ message: "user not found" });
 
-    const contacts = user!.contacts as IContact[];
-    contacts.forEach((contact) => {
-      if (contact.email === payload.email || contact.phone === payload.phone)
-        throw new Error("contact already exists");
-    });
+    const exists = await contactModel.exists(user!._id, payload.email!);
+    if (exists) throw new Error("contact already exists");
   } catch (error: Error | any) {
     if (file) await removeFile(file.path);
     return response.status(400).json({ message: error.message });

@@ -7,6 +7,8 @@ router.use(authUser);
 
 router.post("/", localUpload.single("avatar"), controller.create);
 router.get("/", controller.getAll);
+router.get("/favorites", controller.getFavorites);
 router.get("/:id", controller.getById);
+router.patch("/:id", controller.toggleFavorite);
 
 export { router as ContactRoutes };
