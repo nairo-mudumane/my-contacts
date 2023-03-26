@@ -1,18 +1,31 @@
 import dotenv from "dotenv";
-import * as firebase from "firebase-admin";
-import { ServiceAccount } from "firebase-admin";
-import serviceAccount from "./service-account.json";
+import mongoose from "mongoose";
 
 dotenv.config();
 
-firebase.initializeApp({
-  credential: firebase.credential.cert(serviceAccount as ServiceAccount),
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  databaseURL: process.env.FIREBASE_DATABASE_URL,
-});
+const uri = process.env.DB_URI;
+const dbName = process.env.DB_NAME;
+const env = process.env.NODE_ENV;
 
-export const mediaStorage = firebase.storage().bucket();
-export const firestoreAuth = firebase.auth();
-export const database = firebase.firestore();
-database.settings({ ignoreUndefinedProperties: true });
+export async function connectToDataBase(): Promise<void> {
+  console.log("connecting to database...");
+
+  try {
+    if (!uri) throw new Error(`No database url provided`);
+
+    mongoose.set("debug", env === "DEVELOPMENT");
+    mongoose.set("strict", true);
+
+    await mongoose.connect(uri, {
+      dbName,
+      retryReads: true,
+      retryWrites: true,
+      connectTimeoutMS: 12000,
+    });
+  } catch (error) {
+    console.error(error);
+    throw new Error((error as Error).message);
+  }
+
+  console.log("connected to database");
+}
